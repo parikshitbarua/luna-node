@@ -18,19 +18,20 @@ app.get('/', (req, res) => {
 app.post('/getBalance', async (req: Request, res: Response) => {
     const { address } = req.body;
 
-    const balanceDetails = await getBalance(address);
+    const tokenDetails = await getBalance(address);
     const trxs = await getTransactions(address, LIMIT);
-    const addressTransactions = cleanTransactions(trxs);
+    const [transactions, netBalance] = cleanTransactions(address, trxs);
 
-    if (balanceDetails == null || trxs == null) {
+    if (tokenDetails == null || trxs == null) {
         res.status(500).json({
             message: "Some error occurred. Please try again"
         })
     }
 
     res.json({
-        balanceDetails,
-        addressTransactions
+        netBalance: `The net wallet balance based on the last ${LIMIT} transactions is: ${netBalance} LUNA`,
+        tokenDetails,
+        transactions
     });
 
 });

@@ -1,5 +1,7 @@
-export const cleanTransactions = (trxResponse: Array<any>) => {
+export const cleanTransactions = (address: string, trxResponse: Array<any>) => {
     const formattedTrx = [];
+    let netBalance = 0;
+
     for (let i = 0; i < trxResponse.length; i++) {
         let sender, receiver, amount;
         if (trxResponse[i]?.tx?.value?.msg[0]?.type == "wasm/MsgExecuteContract") {
@@ -15,6 +17,11 @@ export const cleanTransactions = (trxResponse: Array<any>) => {
             amount = trxResponse[i]?.tx?.value?.msg[0]?.value?.amount[0]?.amount / 10e5;
 
         }
+        if ( sender == address) {
+            netBalance -= amount;
+        } else if ( receiver == address) {
+            netBalance += amount;
+        }
 
         formattedTrx.push({
             sender,
@@ -23,6 +30,9 @@ export const cleanTransactions = (trxResponse: Array<any>) => {
         })
     }
 
-    return formattedTrx;
+    return [
+        formattedTrx,
+        netBalance
+    ];
 
 }
